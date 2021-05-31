@@ -8,3 +8,13 @@ description: |
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
+
+This is a website (and github repository) of data and code for our work about pattern of HIV related hospital admissions to QECH in Blantyre, Malawi from 2012 to 2019.
+
+We are the Malawi Liverpool Wellcome Population Health group; a group of reseachers affiliated with Malawi-Liverpool-Wellcome, Liverpool School of Tropical Medicine, London School of Hygiene and Tropical Medicine, College of Medicine at University of Malawi and University of Sheffield.
+
+This analysis was a collaborative work with other groups at MLW (including the data department), the Malawi National HIV programme and Queen Elizabeth Central Hospital.
+
+Some more information about our research group is available at Dr Peter MacPherson’s group manual here https://petermacp.github.io/mlw.public.health.group/ .
+
+If you have any questions, we’d be very happy to discuss. A good first port of call is probably rachael.burke [at] lshtm [dot] ac [dot] uk.

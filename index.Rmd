@@ -1,18 +1,30 @@
 ---
 title: "hivhospital"
 description: |
-  Welcome to the website. I hope you enjoy it!
+  A website to share code and some data about our analyses of HIV related hospital admission in Blantyre, Malawi
 site: distill::distill_website
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
-
-# Learn more about creating websites with Distill at:
-# https://rstudio.github.io/distill/website.html
-
-# Learn more about publishing to GitHub Pages at:
-# https://rstudio.github.io/distill/publish_website.html#github-pages
-
 ```
+
+
+This is a companion website (and github repository) to our analysis of HIV related hospital admissions to QECH.  It's purpose is to share code (and some data) with scientific community.
+
+On this site you can see knitted code containing output and code for all the analyses in the paper.
+
+The github repo (https://github.com/rachaelmburke/hivhospital) contains the following relevant folders:
+
+1. Data -- contains real data on Blantyre population from Blantrye census (files 'blantyre_cenus_by_q.rda' and 'cens_edit.rda'). This also contains two "synthetic" (artificial) datasets for spine analyes; pre- and post- imputation.
+2. Code -- contains Rmd files for the real analyses, the supplementary material and a slightly tweaked Rmd file that will run with included data.
+3. Knitted -- contains the above Rmd files but knitted to .html
+4. Figures -- contains pdfs of all figures and supplementary figures in the paper.
+
+The synthetic datasets were created using "synthpop" package in R.  They are designed to facilitate understanding of our code and analysis but are not suitable for running accurate further analysis. See Nowok, B., Raab, G. M. & Dibben, C. synthpop: Bespoke Creation of Synthetic Data in R. Journal of Statistical Software 74, 1–26 (2016) for more detail.
+
+Further information about the analyses / SPINE project is available by contacting the first or last authors (rachael.burke@lshtm.ac.uk or peter.macpherson@lstmed.ac.uk). Data requests for the real dataset can also be directed to MLW data department (data@mlw.mw) who may be able to facilitate data sharing, permission from QECH may be required.
+
+Note: This website was originally build in December 2020.  We made some tweaks to code following reviewers suggestions in May 2021.  The changes were relatively small, unfortunately, I ended up taking down and recreating the repo in an effort to change the changes to knit in the new website.
+
 

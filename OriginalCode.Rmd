@@ -1,0 +1,28 @@
+---
+title: "Original Code"
+description: |
+  Code used for original analyses in the paper.
+author:
+  - name: Rachael Burke
+    url: https://www.lshtm.ac.uk/aboutus/people/burke.rachael
+    affiliation: LSHTM / MLW
+date: "`r Sys.Date()`"
+output: distill::distill_article
+---
+
+This is a test for code
+
+```{r}
+library(here)
+
+load(here("data-raw","cens_edit.rda"))
+
+cens_edit
+#Testing putting code here and accessing data-raw
+```
+
+
+
+
+
+

@@ -86,29 +86,33 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 </style>
 
   <!--radix_placeholder_meta_tags-->
-  <title>hivhospital: About this site</title>
+  <title>hivhospital: Original Code</title>
   
-  <meta property="description" itemprop="description" content="Some additional details about the website"/>
+  <meta property="description" itemprop="description" content="Code used for original analyses in the paper."/>
   
   
+  <!--  https://schema.org/Article -->
+  <meta property="article:published" itemprop="datePublished" content="2021-05-31"/>
+  <meta property="article:created" itemprop="dateCreated" content="2021-05-31"/>
+  <meta name="article:author" content="Rachael Burke"/>
   
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
-  <meta property="og:title" content="hivhospital: About this site"/>
+  <meta property="og:title" content="hivhospital: Original Code"/>
   <meta property="og:type" content="article"/>
-  <meta property="og:description" content="Some additional details about the website"/>
+  <meta property="og:description" content="Code used for original analyses in the paper."/>
   <meta property="og:locale" content="en_US"/>
   <meta property="og:site_name" content="hivhospital"/>
   
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
-  <meta property="twitter:title" content="hivhospital: About this site"/>
-  <meta property="twitter:description" content="Some additional details about the website"/>
+  <meta property="twitter:title" content="hivhospital: Original Code"/>
+  <meta property="twitter:description" content="Code used for original analyses in the paper."/>
   
   <!--/radix_placeholder_meta_tags-->
   <!--radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description"]}},"value":[{"type":"character","attributes":{},"value":["About this site"]},{"type":"character","attributes":{},"value":["Some additional details about the website"]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output"]}},"value":[{"type":"character","attributes":{},"value":["Original Code"]},{"type":"character","attributes":{},"value":["Code used for original analyses in the paper.\n"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation"]}},"value":[{"type":"character","attributes":{},"value":["Rachael Burke"]},{"type":"character","attributes":{},"value":["https://www.lshtm.ac.uk/aboutus/people/burke.rachael"]},{"type":"character","attributes":{},"value":["LSHTM / MLW"]}]}]},{"type":"character","attributes":{},"value":["2021-05-31"]},{"type":"character","attributes":{},"value":["distill::distill_article"]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -2052,7 +2056,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"About this site","description":"Some additional details about the website","authors":[]}
+{"title":"Original Code","description":"Code used for original analyses in the paper.","authors":[{"author":"Rachael Burke","authorURL":"https://www.lshtm.ac.uk/aboutus/people/burke.rachael","affiliation":"LSHTM / MLW","affiliationURL":"#","orcidID":""}],"publishedDate":"2021-05-31T00:00:00.000+00:00","citationText":"Burke, 2021"}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2075,20 +2079,287 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--/radix_placeholder_site_before_body-->
 
 <div class="d-title">
-<h1>About this site</h1>
+<h1>Original Code</h1>
 <!--radix_placeholder_categories-->
 <!--/radix_placeholder_categories-->
-<p><p>Some additional details about the website</p></p>
+<p><p>Code used for original analyses in the paper.</p></p>
 </div>
 
+<div class="d-byline">
+  Rachael Burke <a href="https://www.lshtm.ac.uk/aboutus/people/burke.rachael" class="uri">https://www.lshtm.ac.uk/aboutus/people/burke.rachael</a> (LSHTM / MLW)
+  
+<br/>2021-05-31
+</div>
 
 <div class="d-article">
-<p>This is a website (and github repository) of data and code for our work about pattern of HIV related hospital admissions to QECH in Blantyre, Malawi from 2012 to 2019.</p>
-<p>We are the Malawi Liverpool Wellcome Population Health group; a group of reseachers affiliated with Malawi-Liverpool-Wellcome, Liverpool School of Tropical Medicine, London School of Hygiene and Tropical Medicine, College of Medicine at University of Malawi and University of Sheffield.</p>
-<p>This analysis was a collaborative work with other groups at MLW (including the data department), the Malawi National HIV programme and Queen Elizabeth Central Hospital.</p>
-<p>Some more information about our research group is available at Dr Peter MacPherson’s group manual here <a href="https://petermacp.github.io/mlw.public.health.group/" class="uri">https://petermacp.github.io/mlw.public.health.group/</a> .</p>
-<p>If you have any questions, we’d be very happy to discuss. A good first port of call is probably rachael.burke [at] lshtm [dot] ac [dot] uk.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<p>This is a test for code</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://here.r-lib.org/'>here</a></span><span class='op'>)</span>
+
+<span class='fu'><a href='https://rdrr.io/r/base/load.html'>load</a></span><span class='op'>(</span><span class='fu'><a href='https://here.r-lib.org//reference/here.html'>here</a></span><span class='op'>(</span><span class='st'>"data-raw"</span>,<span class='st'>"cens_edit.rda"</span><span class='op'>)</span><span class='op'>)</span>
+
+<span class='va'>cens_edit</span>
+</code></pre>
+</div>
+<pre><code>       quarter ageg10     sex    pop
+1   2012-10-01  15-24 females 129510
+2   2012-10-01  15-24   males 119197
+3   2012-10-01  25-34 females  94609
+4   2012-10-01  25-34   males  96894
+5   2012-10-01  35-44 females  51523
+6   2012-10-01  35-44   males  59627
+7   2012-10-01  45-54 females  24832
+8   2012-10-01  45-54   males  28058
+9   2012-10-01  55-64 females  14743
+10  2012-10-01  55-64   males  15591
+11  2012-10-01    65+ females  14427
+12  2012-10-01    65+   males  12778
+13  2013-01-01  15-24 females 130284
+14  2013-01-01  15-24   males 120081
+15  2013-01-01  25-34 females  95045
+16  2013-01-01  25-34   males  96926
+17  2013-01-01  35-44 females  52331
+18  2013-01-01  35-44   males  60374
+19  2013-01-01  45-54 females  25063
+20  2013-01-01  45-54   males  28394
+21  2013-01-01  55-64 females  14844
+22  2013-01-01  55-64   males  15650
+23  2013-01-01    65+ females  14565
+24  2013-01-01    65+   males  12893
+25  2013-04-01  15-24 females 131058
+26  2013-04-01  15-24   males 120965
+27  2013-04-01  25-34 females  95482
+28  2013-04-01  25-34   males  96957
+29  2013-04-01  35-44 females  53139
+30  2013-04-01  35-44   males  61121
+31  2013-04-01  45-54 females  25295
+32  2013-04-01  45-54   males  28731
+33  2013-04-01  55-64 females  14945
+34  2013-04-01  55-64   males  15708
+35  2013-04-01    65+ females  14702
+36  2013-04-01    65+   males  13007
+37  2013-07-01  15-24 females 131832
+38  2013-07-01  15-24   males 121848
+39  2013-07-01  25-34 females  95917
+40  2013-07-01  25-34   males  96990
+41  2013-07-01  35-44 females  53948
+42  2013-07-01  35-44   males  61869
+43  2013-07-01  45-54 females  25525
+44  2013-07-01  45-54   males  29067
+45  2013-07-01  55-64 females  15045
+46  2013-07-01  55-64   males  15766
+47  2013-07-01    65+ females  14838
+48  2013-07-01    65+   males  13121
+49  2013-10-01  15-24 females 132606
+50  2013-10-01  15-24   males 122732
+51  2013-10-01  25-34 females  96353
+52  2013-10-01  25-34   males  97022
+53  2013-10-01  35-44 females  54756
+54  2013-10-01  35-44   males  62616
+55  2013-10-01  45-54 females  25756
+56  2013-10-01  45-54   males  29403
+57  2013-10-01  55-64 females  15146
+58  2013-10-01  55-64   males  15825
+59  2013-10-01    65+ females  14976
+60  2013-10-01    65+   males  13236
+61  2014-01-01  15-24 females 133381
+62  2014-01-01  15-24   males 123615
+63  2014-01-01  25-34 females  96789
+64  2014-01-01  25-34   males  97054
+65  2014-01-01  35-44 females  55564
+66  2014-01-01  35-44   males  63364
+67  2014-01-01  45-54 females  25987
+68  2014-01-01  45-54   males  29741
+69  2014-01-01  55-64 females  15249
+70  2014-01-01  55-64   males  15884
+71  2014-01-01    65+ females  15111
+72  2014-01-01    65+   males  13350
+73  2014-04-01  15-24 females 134155
+74  2014-04-01  15-24   males 124499
+75  2014-04-01  25-34 females  97225
+76  2014-04-01  25-34   males  97087
+77  2014-04-01  35-44 females  56374
+78  2014-04-01  35-44   males  64111
+79  2014-04-01  45-54 females  26218
+80  2014-04-01  45-54   males  30076
+81  2014-04-01  55-64 females  15350
+82  2014-04-01  55-64   males  15943
+83  2014-04-01    65+ females  15249
+84  2014-04-01    65+   males  13463
+85  2014-07-01  15-24 females 134929
+86  2014-07-01  15-24   males 125384
+87  2014-07-01  25-34 females  97661
+88  2014-07-01  25-34   males  97118
+89  2014-07-01  35-44 females  57183
+90  2014-07-01  35-44   males  64857
+91  2014-07-01  45-54 females  26448
+92  2014-07-01  45-54   males  30413
+93  2014-07-01  55-64 females  15452
+94  2014-07-01  55-64   males  16003
+95  2014-07-01    65+ females  15386
+96  2014-07-01    65+   males  13576
+97  2014-10-01  15-24 females 135703
+98  2014-10-01  15-24   males 126267
+99  2014-10-01  25-34 females  98097
+100 2014-10-01  25-34   males  97151
+101 2014-10-01  35-44 females  57991
+102 2014-10-01  35-44   males  65605
+103 2014-10-01  45-54 females  26679
+104 2014-10-01  45-54   males  30749
+105 2014-10-01  55-64 females  15553
+106 2014-10-01  55-64   males  16061
+107 2014-10-01    65+ females  15523
+108 2014-10-01    65+   males  13691
+109 2015-01-01  15-24 females 136477
+110 2015-01-01  15-24   males 127150
+111 2015-01-01  25-34 females  98532
+112 2015-01-01  25-34   males  97183
+113 2015-01-01  35-44 females  58799
+114 2015-01-01  35-44   males  66353
+115 2015-01-01  45-54 females  26910
+116 2015-01-01  45-54   males  31086
+117 2015-01-01  55-64 females  15654
+118 2015-01-01  55-64   males  16120
+119 2015-01-01    65+ females  15661
+120 2015-01-01    65+   males  13805
+121 2015-04-01  15-24 females 137252
+122 2015-04-01  15-24   males 128034
+123 2015-04-01  25-34 females  98968
+124 2015-04-01  25-34   males  97215
+125 2015-04-01  35-44 females  59608
+126 2015-04-01  35-44   males  67100
+127 2015-04-01  45-54 females  27141
+128 2015-04-01  45-54   males  31422
+129 2015-04-01  55-64 females  15756
+130 2015-04-01  55-64   males  16179
+131 2015-04-01    65+ females  15796
+132 2015-04-01    65+   males  13920
+133 2015-07-01  15-24 females 138026
+134 2015-07-01  15-24   males 128919
+135 2015-07-01  25-34 females  99405
+136 2015-07-01  25-34   males  97247
+137 2015-07-01  35-44 females  60417
+138 2015-07-01  35-44   males  67847
+139 2015-07-01  45-54 females  27372
+140 2015-07-01  45-54   males  31760
+141 2015-07-01  55-64 females  15857
+142 2015-07-01  55-64   males  16238
+143 2015-07-01    65+ females  15935
+144 2015-07-01    65+   males  14033
+145 2015-10-01  15-24 females 138799
+146 2015-10-01  15-24   males 129802
+147 2015-10-01  25-34 females  99840
+148 2015-10-01  25-34   males  97280
+149 2015-10-01  35-44 females  61226
+150 2015-10-01  35-44   males  68593
+151 2015-10-01  45-54 females  27603
+152 2015-10-01  45-54   males  32096
+153 2015-10-01  55-64 females  15959
+154 2015-10-01  55-64   males  16298
+155 2015-10-01    65+ females  16071
+156 2015-10-01    65+   males  14146
+157 2016-01-01  15-24 females 139575
+158 2016-01-01  15-24   males 130685
+159 2016-01-01  25-34 females 100277
+160 2016-01-01  25-34   males  97312
+161 2016-01-01  35-44 females  62034
+162 2016-01-01  35-44   males  69342
+163 2016-01-01  45-54 females  27834
+164 2016-01-01  45-54   males  32433
+165 2016-01-01  55-64 females  16060
+166 2016-01-01  55-64   males  16356
+167 2016-01-01    65+ females  16208
+168 2016-01-01    65+   males  14261
+169 2016-04-01  15-24 females 140349
+170 2016-04-01  15-24   males 131570
+171 2016-04-01  25-34 females 100713
+172 2016-04-01  25-34   males  97345
+173 2016-04-01  35-44 females  62843
+174 2016-04-01  35-44   males  70089
+175 2016-04-01  45-54 females  28064
+176 2016-04-01  45-54   males  32768
+177 2016-04-01  55-64 females  16162
+178 2016-04-01  55-64   males  16416
+179 2016-04-01    65+ females  16344
+180 2016-04-01    65+   males  14374
+181 2016-07-01  15-24 females 141124
+182 2016-07-01  15-24   males 132454
+183 2016-07-01  25-34 females 101148
+184 2016-07-01  25-34   males  97377
+185 2016-07-01  35-44 females  63652
+186 2016-07-01  35-44   males  70836
+187 2016-07-01  45-54 females  28296
+188 2016-07-01  45-54   males  33105
+189 2016-07-01  55-64 females  16264
+190 2016-07-01  55-64   males  16475
+191 2016-07-01    65+ females  16482
+192 2016-07-01    65+   males  14488
+193 2016-10-01  15-24 females 141898
+194 2016-10-01  15-24   males 133336
+195 2016-10-01  25-34 females 101584
+196 2016-10-01  25-34   males  97409
+197 2016-10-01  35-44 females  64459
+198 2016-10-01  35-44   males  71584
+199 2016-10-01  45-54 females  28527
+200 2016-10-01  45-54   males  33442
+201 2016-10-01  55-64 females  16365
+202 2016-10-01  55-64   males  16532
+203 2016-10-01    65+ females  16620
+204 2016-10-01    65+   males  14602
+205 2017-01-01  15-24 females 142672
+206 2017-01-01  15-24   males 134219
+207 2017-01-01  25-34 females 102021
+208 2017-01-01  25-34   males  97441
+209 2017-01-01  35-44 females  65267
+210 2017-01-01  35-44   males  72330
+211 2017-01-01  45-54 females  28759
+212 2017-01-01  45-54   males  33779
+213 2017-01-01  55-64 females  16467
+214 2017-01-01  55-64   males  16592
+215 2017-01-01    65+ females  16756
+216 2017-01-01    65+   males  14718
+217 2017-04-01  15-24 females 143446
+218 2017-04-01  15-24   males 135104
+219 2017-04-01  25-34 females 102457
+220 2017-04-01  25-34   males  97472
+221 2017-04-01  35-44 females  66076
+222 2017-04-01  35-44   males  73078
+223 2017-04-01  45-54 females  28988
+224 2017-04-01  45-54   males  34116
+225 2017-04-01  55-64 females  16568
+226 2017-04-01  55-64   males  16651
+227 2017-04-01    65+ females  16894
+228 2017-04-01    65+   males  14831
+229 2017-07-01  15-24 females 144220
+230 2017-07-01  15-24   males 135988
+231 2017-07-01  25-34 females 102892
+232 2017-07-01  25-34   males  97505
+233 2017-07-01  35-44 females  66886
+234 2017-07-01  35-44   males  73825
+235 2017-07-01  45-54 females  29220
+236 2017-07-01  45-54   males  34452
+237 2017-07-01  55-64 females  16669
+238 2017-07-01  55-64   males  16710
+239 2017-07-01    65+ females  17029
+240 2017-07-01    65+   males  14943
+241 2017-10-01  15-24 females 144995
+242 2017-10-01  15-24   males 136871
+243 2017-10-01  25-34 females 103328
+244 2017-10-01  25-34   males  97538
+245 2017-10-01  35-44 females  67694
+246 2017-10-01  35-44   males  74572
+247 2017-10-01  45-54 females  29450
+248 2017-10-01  45-54   males  34787
+249 2017-10-01  55-64 females  16771
+250 2017-10-01  55-64   males  16769
+ [ reached &#39;max&#39; / getOption(&quot;max.print&quot;) -- omitted 86 rows ]</code></pre>
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='co'>#Testing putting code here and accessing data-raw</span>
+</code></pre>
+</div>
+</div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>
