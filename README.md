@@ -15,4 +15,6 @@ The synthetic datasets were created using "synthpop" package in R.  They are des
 
 Further information about the analyses / SPINE project is available by contacting the first or last authors (rachael.burke@lshtm.ac.uk or peter.macpherson@lstmed.ac.uk). Data requests for the real dataset can also be directed to MLW data department (data@mlw.mw) who may be able to facilitate data sharing, permission from QECH may be required.
 
+Code and data on this repo is available for use under CC-BY license; please do acknowledge us as creator.
 
+Note: The "docs" folder is there to create / hold the website content.  You are welcome to look at it (of course), but it's not the correct folder to find our data and code if you want to use it yourself.
