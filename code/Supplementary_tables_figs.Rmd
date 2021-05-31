@@ -1,0 +1,580 @@
+---
+title: "Supplementary Appendix"
+output: html_document
+---
+
+```{r, setup, include=FALSE}
+library(wesanderson)
+
+# Date breaks for graphs 
+breaks <- dmy(c("01-10-2012","01-01-2016","01-07-2019"))
+breaks1 <- dmy(c("01-10-2012","01-01-2015","01-04-2017","01-07-2019"))
+```
+
+### Supplementary Figure 1: Admissions by age, sex, HIV and quarter-year
+
+S. Figure 1a: HIV status of people admitted to QECH
+```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.width=9}
+s1_data <- spine %>% 
+  mutate(hiv=as.character(hiv)) %>%
+  mutate(hiv=replace_na(hiv,"Unknown")) %>%
+  mutate(hiv=factor(hiv, levels=c("Unknown", "Negative","Positive"))) %>%
+  mutate(q = group_indices(.,quarter)) %>%
+  group_by(quarter) %>%
+  mutate(number=n()) 
+
+label_sum <- spine %>%
+  group_by(ageg10, sex) %>%
+  summarise(sum = as.character(n()))
+
+ggplot(s1_data) +
+  geom_bar(aes(fill=hiv,x=quarter), position="fill") +
+  geom_text(data=label_sum, aes(x=ymd("2014-10-01"), y=0.95, 
+                label=paste0("n=",sum, sep=""))) +
+  facet_grid(sex ~ageg10) + 
+  scale_fill_manual(values=wes_palette("BottleRocket2")) +
+    labs(
+      #title="HIV status of adults admitted to QECH",
+      #subtitle = "By quarter, and sex. n = total numer admissions between Q3.2012 to Q3.2019",
+       x="Year and quarter",
+       y="Proportion of admissions by HIV status",
+       fill="HIV status") +
+  scale_y_continuous() +
+  scale_x_date(breaks=breaks1, date_labels = "%b %Y") +
+  theme_bw() +
+  theme(panel.spacing = unit(1, "lines"),
+        axis.text.x=element_text(angle = 90))
+
+ggsave(here("figures/1a.pdf"), width = 10, height = 6, dpi=300)
+```
+
+S. Figure 1A: Absolute numbers of admissions, stacked bar chart of crude data.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.width=9}
+spine_gp <- spine %>%
+  group_by(quarter, ageg10, sex, hiv) %>%
+  summarise(n=n()) %>%
+  ungroup() %>%
+  mutate(q = group_indices(.,quarter))
+
+spine_gp %>%  
+  mutate(HIV=as.character(hiv)) %>%
+  mutate(HIV=replace_na(HIV,"Unknown / Missing")) %>%
+  mutate(HIV=factor(HIV, levels=c("Unknown / Missing", "Negative","Positive"))) %>%
+  ggplot() +
+  geom_bar(aes(fill=HIV,x=quarter, y=n), stat="identity") +
+  geom_text(data=label_sum, aes(x=ymd("2014-10-01"), y=200, 
+                label=paste0("n=",sum, sep=""))) +
+  facet_grid(sex ~ageg10) + 
+  #scale_fill_manual(values=wes_palettes$FantasticFox1[c(2,3,5)]) +
+  scale_fill_manual(values=wes_palette("BottleRocket2",3)) +
+    labs(
+       x="Year and quarter",
+       y="Number of adult admissions",
+      fill="HIV status",
+      title = "Absolute numbers of admissions") +
+  scale_y_continuous() +
+  scale_x_date(breaks=breaks1, date_labels = "%b%y ") +
+  theme_bw() +
+  theme(panel.spacing = unit(1, "lines"),
+        axis.text.x=element_text(angle = 90))
+
+ggsave(here("figures/S1b.pdf"), width = 10, height = 6, dpi=300)
+```
+
+
+S. Figure 1B: Population level incidence of admissions, stacked bar chart of crude data.
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.width=9}
+both<- left_join(spine_gp, cens_edit) %>%
+  mutate(n = case_when(is.na(n) ~ 0L,
+                       TRUE ~ n)) %>%  # 'n' is now from n_imputed
+  mutate(inc = (n/pop) * 100000) %>%
+  ungroup() %>%
+  mutate(q = group_indices(.,quarter))
+
+both %>%  
+  mutate(HIV=as.character(hiv)) %>%
+  mutate(HIV=replace_na(HIV,"Unknown / Missing")) %>%
+  mutate(HIV=factor(HIV, levels=c("Unknown / Missing", "Negative","Positive"))) %>%
+  ggplot() +
+  geom_bar(aes(fill=HIV,x=quarter, y=inc), stat="identity") +
+  geom_text(data=label_sum, aes(x=ymd("2014-10-01"), y=700, 
+                label=paste0("n=",sum, sep=""))) +
+  facet_grid(sex ~ageg10) + 
+  scale_fill_manual(values=wes_palette("BottleRocket2",3)) +
+    labs(
+       x="Year and quarter",
+       y="Incidence of adult admission (per 100,000 people)",
+      fill="HIV status") +
+  scale_y_continuous() +
+  scale_x_date(breaks=breaks1, date_labels = "%b%y ") +
+  theme_bw() +
+  theme(panel.spacing = unit(1, "lines"),
+        axis.text.x=element_text(angle = 90))
+
+ggsave(here("figures/S1c.pdf"), width = 10, height = 6, dpi=300)
+
+```
+
+
+```{r, include=FALSE}
+supp_data <- both %>% mutate(count=as.character(n)) %>% 
+  mutate(count=case_when(
+  n<5 ~ "<5",
+  T ~ count
+)) %>% 
+  mutate(inc=case_when(n<5 ~ NA_real_,
+                            T ~ inc)) %>%
+  mutate(n=case_when(
+    n<5 ~ NA_integer_,
+    T ~ n
+  )) 
+
+write.csv(supp_data, here("data","supplementary_data.csv"))
+saveRDS(supp_data, here("data","supplementary_data.rds"))
+```
+
+
+### Supplementary table 1: Blantyre census for 2008 and 2018
+
+
+S Table 1A: Measured population Blantyre (includes Blantyre City and Blantyre Rural administrative districts) at 2008 and 2018 census
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+load(here("data-raw", "blantyre_census_by_q.rda"))
+cens <- blantyre_census_by_q 
+age_levels10 <- c('15-24','25-34','35-44','45-54','55-64','65+')
+
+cens <- cens %>%
+  mutate(quarter=yq(year_q)) %>% 
+  rename(ageg5 = age)
+
+cens <- cens %>%
+  mutate(ageg10 = case_when(ageg5 == "15-19" ~ "15-24",
+                            ageg5 == "20-24" ~ "15-24",
+                            ageg5 == "25-29" ~ "25-34",
+                            ageg5 == "30-34" ~ "25-34",
+                            ageg5 == "35-39" ~ "35-44",
+                            ageg5 == "40-44" ~ "35-44",
+                            ageg5 == "45-49" ~ "45-54",
+                            ageg5 == "50-54" ~ "45-54",
+                            ageg5 == "55-59" ~ "55-64",
+                            ageg5 == "60-64" ~ "55-64",
+                            ageg5 == "65-69" ~ "65+",
+                            ageg5 == "70-74" ~ "65+",
+                            ageg5 == "75+" ~ "65+",
+                            ))
+
+# make census agegroups into a factor
+cens$ageg10 <- ordered(cens$ageg10, levels=age_levels10)
+
+cens_adults <- cens %>%
+  filter(ageg5>="15-19") #removes children (and this works because now an ordered factor)
+
+
+# Get relevant census data
+cens2 <- cens_adults %>% #merges Blantyre city and Blantyre rural
+  group_by(quarter, ageg10, sex) %>%
+  summarise(pop=sum(population)) %>%
+  ungroup () %>%
+  dplyr::select(pop, quarter, ageg10, sex) %>%
+  filter(!sex=="total") #gets rid of total group - keep just males and females
+
+cens2 %>% filter(quarter=="2008-04-01" | quarter=="2018-04-01") %>% pivot_wider(names_from = quarter, values_from=pop) %>% gt()
+
+```
+  
+    
+S Table 1B: Population Blantyre at start (Q4.2012) and end (Q3.2019) study period [calculated using linear interpolation and extrapolation]
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+cens_edit%>% filter(quarter=="2012-10-01" | quarter=="2019-07-01") %>% pivot_wider(names_from = quarter, values_from=pop)  %>% 
+  mutate(change=
+           paste0(
+             round(
+             (`2019-07-01` - `2012-10-01`) / `2019-07-01` * 100,digits=0), "%"
+  )) %>% ungroup() %>%
+  gt()
+
+```
+
+
+### Supplementary figure 2: Sensitvity analysis for incidence (imputation)
+
+  
+S. Figure 2A: Everyone with HIV status unknown / missing is treated as if HIV negative
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+out_pos %>%
+  ggplot() +
+  geom_line(aes(x=quarter, y=inc), colour="#1AB8FF") +
+  geom_ribbon(aes(x=quarter, ymin =inc_low, ymax =inc_high), alpha = .3, fill="#1AB8FF") +
+  geom_point(data= both_orig_hivpos, aes(x=quarter, y=inc),size=0.5) +
+  facet_grid(sex ~ ageg10) +
+  labs(title="Incidence of 'known HIV+' hospital admission",
+       subtitle = "Emprical (dots) and model-predicted estimates",
+       x="Year and quarter",
+       y="Incidence per 100,000 people (95% CIs)",
+       caption = "Negative binomial model. Spline term 3 knots. People with unknown HIV status treated as if negative") +
+  scale_x_date(breaks=breaks1, date_labels = "%b%y ") +
+  theme_bw() +
+  theme(panel.spacing = unit(1, "lines"),
+        axis.text.x=element_text(angle = 90))
+```
+
+  
+     
+S. Figure 2B: Everyone with HIV status unknown / missing is treated as if HIV positive
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+out_unk %>%
+  ggplot() +
+  geom_line(aes(x=quarter, y=inc), colour="red") +
+  geom_ribbon(aes(x=quarter, ymin = inc_low, ymax = inc_high), alpha = .3, fill="red") +
+  geom_point(data= both_orig_hivposunk, aes(x=quarter, y=inc),size=0.5) +
+  facet_grid(sex ~ ageg10) +
+  labs(title="Incidence of HIV positve hospital admission - HIV unknown assumed positive",
+       subtitle = "Emprical (dots) and model-predicted estimates",
+       x="Year and quarter",
+       y="Incidence per 100,000 people (95% CIs)",
+       caption = "Negative binomial model") +
+  scale_x_date(breaks=breaks1, date_labels = "%b%y ") +
+  theme_bw() +
+  theme(panel.spacing = unit(1, "lines"),
+        axis.text.x=element_text(angle = 90))
+```
+
+### Supplementary Table 2: Reduction in admission to QECH by age group and sex
+
+  
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+tab_3 %>% dplyr::select(ageg10,sex,imp, imp_p, unk_neg, unk_neg_p, unk_pos, unk_pos_p) %>%
+  gt() %>%
+  tab_spanner(
+    label="HIV status imputed when missing",
+    columns=vars(imp, imp_p)
+  ) %>%
+    tab_spanner(
+    label="HIV unknowns assumed negative",
+    columns=vars(unk_neg, unk_neg_p)
+  ) %>%
+    tab_spanner(
+    label="HIV unknowns assumed positive",
+    columns=vars(unk_pos, unk_pos_p)
+  ) %>%
+  cols_label(ageg10 = "Age group",
+             sex="Sex",
+             imp="Absolute number",
+             imp_p="Relative decline",
+             unk_neg="Absolute number",
+             unk_neg_p="Relative decline",
+             unk_pos="Absolute number",
+             unk_pos_p="Relative decline")
+```
+
+
+### Supplementary figure 3A: Sensitivity analysis for incidence (choice of model)
+  
+    
+S. Figure 3A: Negative binomial distribution without spline terms
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+model_imp_n0 <- by_imp %>% mutate(model = list(glm.nb(n ~ q*ageg10*sex, data = data %>% filter(hiv=="Positive"),
+                                                offset(log(pop)))))
+                                               
+
+out_n0 <- model2pred_imp(both_imp_gp,model_imp_n0,q,ageg10,sex,"Positive")                                                                                        
+
+ggplot() +
+  geom_line(data=out_n0, aes(x = quarter, y = inc, color=hiv)) +
+  geom_ribbon(data=out_n0, aes(x=quarter, ymin = inc_low, ymax = inc_high, fill=hiv), alpha = 0.2) +
+  geom_point(data=both_imp_gp %>% filter(.imp==12) %>% filter(hiv=="Positive"), aes(x=quarter, y=((n_imputed/pop)*100000), color=hiv),size=0.1) +
+  facet_grid(sex ~ ageg10) +
+  scale_x_date(breaks=breaks1, date_labels = "%b%Y ") +
+  scale_y_continuous(limits=c(0,500)) +
+  scale_color_manual(values=c("Positive"="#00A08A","Negative" = "grey")) +
+  scale_fill_manual(values=c("Positive"="#00A08A","Negative" = "#eeeeee")) +
+  labs(
+    subtitle ="Negative binomial, no spline term",
+    caption="Negative binomial model without splines \n Points from one (of 25) imputed dataset, estimates merged across all imputed datasets") +
+  ylab("Incidence of admission per 100,000 population") +
+  xlab("Year and quarter") +
+    theme_bw() %+replace%
+  theme(panel.spacing.x=unit(0.5, "cm"),
+        axis.text.x=element_text(angle = 90))
+
+```
+
+  
+    
+S. Figure 3B: Negative binomial distribution with 5 knots in spline
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+model_imp_n5 <- by_imp %>% mutate(model = list(glm.nb(n ~ ns(q, knots = 5)*ageg10*sex, data = data %>% filter(hiv=="Positive"),
+                                                offset(log(pop)))))
+                                               
+
+out_n5 <- model2pred_imp(both_imp_gp,model_imp_n5,q,ageg10,sex,"Positive")                                                                                        
+
+ggplot() +
+  geom_line(data=out_n5, aes(x = quarter, y = inc, color=hiv)) +
+  geom_ribbon(data=out_n5, aes(x=quarter, ymin = inc_low, ymax = inc_high, fill=hiv), alpha = 0.2) +
+  geom_point(data=both_imp_gp %>% filter(.imp==12) %>% filter(hiv=="Positive"), aes(x=quarter, y=((n_imputed/pop)*100000), color=hiv),size=0.1) +
+  facet_grid(sex ~ ageg10) +
+  scale_x_date(breaks=breaks1, date_labels = "%b%Y ") +
+  scale_y_continuous(limits=c(0,500)) +
+  scale_color_manual(values=c("Positive"="#00A08A","Negative" = "grey")) +
+  scale_fill_manual(values=c("Positive"="#00A08A","Negative" = "#eeeeee")) +
+  labs(
+    subtitle ="Negative binomial, spline term with 5 knots ",
+    caption="Negative binomial model with splines w. 5 knots \n Points from one (of 25) imputed dataset, estimates merged across all imputed datasets") +
+  ylab("Incidence of admission per 100,000 population") +
+  xlab("Year and quarter") +
+    theme_bw() %+replace%
+  theme(panel.spacing.x=unit(0.5, "cm"),
+        axis.text.x=element_text(angle = 90))
+
+```
+
+  
+    
+S. Figure 3C: Poisson distribution, 3 knot splines
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+model_imp_p3 <- by_imp %>% mutate(model = list(glm(n ~ ns(q, knots = 3)*ageg10*sex, data = data %>% filter(hiv=="Positive"), family="poisson",
+                                                offset(log(pop)))))
+                                               
+
+out_p3 <- model2pred_imp(both_imp_gp,model_imp_p3,q,ageg10,sex,"Positive")                                                                                        
+
+ggplot() +
+  geom_line(data=out_p3, aes(x = quarter, y = inc, color=hiv)) +
+  geom_ribbon(data=out_p3, aes(x=quarter, ymin = inc_low, ymax = inc_high, fill=hiv), alpha = 0.2) +
+  geom_point(data=both_imp_gp %>% filter(.imp==12) %>% filter(hiv=="Positive"), aes(x=quarter, y=((n_imputed/pop)*100000), color=hiv),size=0.1) +
+  facet_grid(sex ~ ageg10) +
+  scale_x_date(breaks=breaks1, date_labels = "%b%Y ") +
+  scale_y_continuous(limits=c(0,500)) +
+  scale_color_manual(values=c("Positive"="#00A08A","Negative" = "grey")) +
+  scale_fill_manual(values=c("Positive"="#00A08A","Negative" = "#eeeeee")) +
+  labs(
+    subtitle ="Poisson distribution, spline term with 3 knots",
+    caption="Poisson model with splines w. 3 knots \n Points from one (of 25) imputed dataset, estimates merged across all imputed datasets") +
+  ylab("Incidence of admission per 100,000 population") +
+  xlab("Year and quarter") +
+    theme_bw() %+replace%
+  theme(panel.spacing.x=unit(0.5, "cm"),
+        axis.text.x=element_text(angle = 90))
+
+```
+
+  
+    
+S. Figure 3D: Gamma distbution, no splines
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+model_imp_g0 <- by_imp %>% mutate(model = list(glm(n ~ q*ageg10*sex, data = data %>% filter(hiv=="Positive"), family=Gamma(link="log"),
+                                                offset(log(pop)))))
+                                               
+
+out_g0 <- model2pred_imp(both_imp_gp,model_imp_g0,q,ageg10,sex,"Positive")  
+
+ggplot() +
+  geom_line(data=out_g0, aes(x = quarter, y = inc, color=hiv)) +
+  geom_ribbon(data=out_g0, aes(x=quarter, ymin = inc_low, ymax = inc_high, fill=hiv), alpha = 0.2) +
+  geom_point(data=both_imp_gp %>% filter(.imp==12) %>% filter(hiv=="Positive"), aes(x=quarter, y=((n_imputed/pop)*100000), color=hiv),size=0.1) +
+  facet_grid(sex ~ ageg10) +
+  scale_x_date(breaks=breaks1, date_labels = "%b%Y ") +
+  scale_y_continuous(limits=c(0,500)) +
+  scale_color_manual(values=c("Positive"="#00A08A","Negative" = "grey")) +
+  scale_fill_manual(values=c("Positive"="#00A08A","Negative" = "#eeeeee")) +
+  labs(
+    subtitle ="Gamma distibution",
+    caption="Gamma model (no splines) \n Points from one (of 25) imputed dataset, estimates merged across all imputed datasets") +
+  ylab("Incidence of admission per 100,000 population") +
+  xlab("Year and quarter") +
+    theme_bw() %+replace%
+  theme(panel.spacing.x=unit(0.5, "cm"),
+        axis.text.x=element_text(angle = 90))
+
+# avert_all_data(avert_est(out_g0),"g0")
+# avert_all_data(avert_est(out_n3),"n3")
+# avert_all_data(avert_est(out_n0),"imp")
+# 
+# spine_imp %>% group_by(.imp) %>% filter(hiv=="Positive") %>% summarise(n=n()) %>% mutate(med=median(n))
+
+```
+
+```{r, include=FALSE}
+# Not for printing, but some model diagnostics
+
+
+
+
+```
+
+
+
+### Supplementary table 3: Death risk by age group and sex
+  
+    
+Table 3A: Crude Data
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+a <- spine %>%
+  mutate(hivart=case_when(
+    hiv=="Positive" & art=="yes_art" ~ "HIV positive, on ART",
+    hiv=="Positive" & art=="no_art" ~ "HIV positive, not on ART",
+    hiv=="Positive" & is.na(art) ~ "HIV positive, ART status unknown",
+    hiv=="Negative" ~ "HIV negative",
+    is.na(hiv)==TRUE ~ "HIV status unknown"
+  )) %>%
+  mutate(ageg10=as.character(ageg10)) %>%
+  mutate(outcome = case_when(
+    outcome==1 ~ "Died",
+    outcome==0 ~ "Discharged alive"
+  ))
+
+x <- tableby(includeNA(outcome) ~ ageg10 +sex, data=a, strata=hivart, total=FALSE, test=FALSE, cat.stats="countrowpct")
+summary(x, title="Crude data")
+
+```
+  
+    
+Table 3B: After imputation
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, results='asis'}
+b <- spine_imp %>% filter(.imp==2) %>%
+    mutate(hivart=case_when(
+    hiv=="Positive" & art=="yes_art" ~ "HIV positive, on ART",
+    hiv=="Positive" & art=="no_art" ~ "HIV positive, not on ART",
+    hiv=="Positive" & is.na(art) ~ "HIV positive by imputation, assume no ART for model",
+    hiv=="Negative" ~ "HIV negative",
+    is.na(hiv)==TRUE ~ "HIV status unknown"
+  ))  %>%
+  mutate(ageg10=as.character(ageg10)) %>%
+  mutate(outcome = case_when(
+    outcome==1 ~ "Died",
+    outcome==0 ~ "Discharged alive"
+  ))
+
+y <- tableby(includeNA(outcome) ~ ageg10 +sex, data=b, strata=hivart, total=FALSE, test=FALSE, cat.stats="countrowpct")
+print(summary(y, title="After imputation for missing data"))
+
+```
+
+### Supplementary figure 4: Sensitivity analysis risk of death
+  
+    
+Complete case analysis, HIV and outcome unknown status removed
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+spine_gp_hivpos_orig <- spine %>% 
+ filter(hiv=="Positive") %>% # filter for HIV
+  filter(is.na(outcome)==FALSE) %>% #filter out those with no outcome
+  mutate(art=as.character(art)) %>%
+  mutate(art=if_else(is.na(art)==TRUE,"no_art",art)) %>%  # add this bit here to make art "NAs" into no_art
+  mutate(art=as.factor(art)) %>%
+  ungroup() %>%
+  mutate(q = group_indices(.,quarter)) %>%
+  mutate(ageg10 = as.factor(ageg10)) %>%
+  mutate(q = group_indices(.,quarter)) %>%
+  group_by(q, quarter, ageg10, sex, hiv) %>% # NB. art statuds (deliberately) not here
+  summarise(n_died= sum(outcome==1), n_alive=sum(outcome==0),n_all=n()) %>%
+  mutate(odds_death = n_died/n_alive) %>%  # adding in outcome data I need
+  mutate(risk_death = n_died/n_all)
+
+b <- spine %>% filter(hiv=="Positive") %>%   mutate(q = group_indices(.,quarter))
+death_risk_orig_pos <-glm(outcome ~ q*ageg10*sex,family=binomial(link="log"), data=b)
+death_out_risk_pos <- model2pred_outcome_orig(b,death_risk_orig_pos)  ## Need a new model2pred for dfs not needing imputation
+
+ggplot() +
+  geom_line(data=death_out_risk_pos, aes(x = quarter, y = chance_death),color="#0066CC") +
+  geom_ribbon(data=death_out_risk_pos, aes(x=quarter, ymin = conf.low, ymax = conf.high), alpha = 0.2, fill="#1AB8FF") +
+  facet_grid(sex ~ ageg10) +
+  geom_point(data=spine_gp_hivpos_orig, aes(x=quarter, y=risk_death),size=0.3) +
+  #geom_text(data=label_sum, aes(x=ymd("2014-10-01"), y=0.7, label=paste0("n=",sum, sep="")), color="blue") +
+  labs(title = "Risk of death if HIV positive and admitted to hospital",
+       caption = "Excluding those with missing HIV status, and those without outcome recorded")+
+  ylab("Risk of death (%)") +
+  xlab("Year and quarter") +
+  scale_x_date(breaks=breaks1, date_labels = "%b%y ") +
+  theme_bw() +
+  theme(panel.spacing.x=unit(0.5, "cm"),
+        axis.text.x=element_text(angle = 90))
+
+```
+
+### Supplementary figure 5: Risk of death including ART as a covariate
+  
+    
+Plot model-predicted risk of death from model incorporating age group, sex, quarter-year and ART status
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ggplot() +
+  geom_line(data=death_out_risk_pos_art%>%filter(art=="no_art"), aes(x = quarter, y = chance_death, color=art)) +
+  geom_line(data=death_out_risk_pos_art%>%filter(art=="yes_art"), aes(x = quarter, y = chance_death, color=art)) +
+  geom_ribbon(data=death_out_risk_pos_art%>%filter(art=="no_art"), aes(x = quarter, ymax = conf.high, ymin=conf.low, fill=art),alpha=0.3) +
+  geom_ribbon(data=death_out_risk_pos_art%>%filter(art=="yes_art"), aes(x = quarter, ymax = conf.high,ymin=conf.low, fill=art),alpha=0.3) +
+  facet_grid(sex ~ ageg10) +
+  labs(title = "Risk of death if HIV positive and admitted to hospital",
+       y="Risk of death (%)",
+       x="Year and quarter",
+       color="ART status",
+       fill="ART status")   +
+  scale_color_manual(values = c("#46ACC8","#B40F20")) +
+  scale_fill_manual(values = c("#46ACC8","#B40F20")) +
+  scale_x_date(breaks=breaks1, date_labels = "%b%y ") +
+  theme_bw() +
+  theme(panel.spacing.x=unit(0.5, "cm"),
+        axis.text.x=element_text(angle = 90))
+
+```
+
+
+### Supplementary figure 6: Risk of death over time including HIV negative
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+ggplot() +
+  geom_line(data=death_out_risk_pos, aes(x = quarter, y = chance_death,color="Positive")) +
+  geom_ribbon(data=death_out_risk_pos, aes(x=quarter, ymin = conf.low, ymax = conf.high, fill="Positive"), alpha = 0.2) +
+  geom_line(data=death_out_risk_neg, aes(x = quarter, y = chance_death,color="Negative")) +
+  geom_ribbon(data=death_out_risk_neg, aes(x=quarter, ymin = conf.low, ymax = conf.high, fill="Negative"), alpha = 0.2) +
+  facet_grid(sex ~ ageg10) +
+  #geom_point(data=spine_outcome_gp %>% unnest(data) %>% filter(.imp==12), aes(x=quarter, y=risk_death),size=0.3) +
+  #geom_text(data=label_sum, aes(x=ymd("2014-10-01"), y=0.7, label=paste0("n=",sum, sep="")), color="blue") +
+  labs(title = "Risk of death if HIV positive and admitted to hospital",
+       fill="HIV status",
+       color="HIV status")+
+  ylab("Risk of death (%)") +
+  xlab("Year and quarter") +
+  scale_color_manual(values = wes_palette("BottleRocket2",2, type="discrete")) + 
+  scale_fill_manual(values = wes_palette("BottleRocket2",2, type="discrete")) + 
+  scale_x_date(breaks=breaks1, date_labels = "%b%y ") +
+  coord_cartesian(ylim = c(0,1)) +
+  theme_bw() +
+  theme(panel.spacing.x=unit(0.5, "cm"),
+        axis.text.x=element_text(angle = 90))
+```
+
+### Supplementary table 4: Trend in outcome by age and sex
+
+Using "emtrends" from "emmeans" package.  In every age and sex group, confidence intervals for trend by quarter cross null effect.
+
+```{r, include=FALSE}
+## What is trend line??
+int_df2 <- death_risk_pos %>%
+  ungroup() %>%
+  filter(.imp == 12) %>% # NB. This is only one (of 25) models
+  dplyr::select(model,data)
+
+outcome_model <- int_df2[[1]][[1]]
+
+a <- emtrends(outcome_model, pairwise ~ ageg10|sex, var="q", data=int_df2[[2]][[1]], transform="response") 
+b <- print(a$emtrends) 
+```
+
+```{r, echo=FALSE}
+b %>% gt()
+```
+
