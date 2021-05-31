@@ -12,5 +12,8 @@ navbar:
   left:
     - text: "Original Code"
       href: OriginalCode.html
-output: distill::distill_article
+output: 
+  distill::distill_article:
+    css: styles.css
+
 
