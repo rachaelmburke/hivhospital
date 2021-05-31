@@ -1,9 +1,4 @@
----
-title: "TB COVID Blantyre"
-author: "R Burke"
-date: "08/03/2021"
-output: html_document
----
+# hivhospital
 
 This is a companion website (and github repository) to our analysis of HIV related hospital admissions to QECH.  It's purpose is to share code (and some data) with scientific community.
 
@@ -19,3 +14,5 @@ The github repo contains the following relevant folders:
 The synthetic datasets were created using "synthpop" package in R.  They are designed to facilitate understanding of our code and analysis but are not suitable for running accurate further analysis. See Nowok, B., Raab, G. M. & Dibben, C. synthpop: Bespoke Creation of Synthetic Data in R. Journal of Statistical Software 74, 1–26 (2016) for more detail.
 
 Further information about the analyses / SPINE project is available by contacting the first or last authors (rachael.burke@lshtm.ac.uk or peter.macpherson@lstmed.ac.uk). Data requests for the real dataset can also be directed to MLW data department (data@mlw.mw) who may be able to facilitate data sharing, permission from QECH may be required.
+
+
