@@ -1,0 +1,21 @@
+{
+  "articles": [
+    {
+      "path": "about.html",
+      "title": "About this site",
+      "description": "Some additional details about the website",
+      "author": [],
+      "contents": "\n\n\n\n",
+      "last_modified": "2021-05-31T21:16:26+02:00"
+    },
+    {
+      "path": "index.html",
+      "title": "hivhospital",
+      "description": "Welcome to the website. I hope you enjoy it!\n",
+      "author": [],
+      "contents": "\n\n\n\n",
+      "last_modified": "2021-05-31T21:16:27+02:00"
+    }
+  ],
+  "collections": []
+}
