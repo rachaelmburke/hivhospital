@@ -13,8 +13,8 @@ breaks1 <- dmy(c("01-10-2012","01-01-2015","01-04-2017","01-07-2019"))
 
 ### Supplementary Figure 1: Admissions by age, sex, HIV and quarter-year
 
-S. Figure 1a: HIV status of people admitted to QECH
-```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.width=9}
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE,fig.width=9, include=FALSE}
 s1_data <- spine %>% 
   mutate(hiv=as.character(hiv)) %>%
   mutate(hiv=replace_na(hiv,"Unknown")) %>%
@@ -79,7 +79,7 @@ spine_gp %>%
   theme(panel.spacing = unit(1, "lines"),
         axis.text.x=element_text(angle = 90))
 
-ggsave(here("figures/S1b.pdf"), width = 10, height = 6, dpi=300)
+ggsave(here("figures/S1A.pdf"), width = 10, height = 6, dpi=300)
 ```
 
 
@@ -578,3 +578,40 @@ b <- print(a$emtrends)
 b %>% gt()
 ```
 
+### Information about people who resided outside Blantyre
+
+5,511 people were excluded from analysis due to residence outside Blantyre.  They had similar characteristics to people who lived in Blantyre.
+
+```{r, echo=F, warning=F}
+including_outside_blz <- readRDS(here("data-raw/including_outside_blz.rds"))
+a <- including_outside_blz %>% rename(Residence = blz, HIV=hiv) %>% mutate(HIV=case_when(
+                                                                  HIV=="NON-REACTIVE" ~ "Negative",
+                                                                  HIV=="REACTIVE" ~ "Positive")) %>%
+                                                                    mutate(HIV=replace_na(HIV,"Unknown / Missing")) %>%
+                                                                    mutate(HIV=factor(HIV, levels=c("Unknown / Missing", "Negative","Positive")))
+```
+
+HIV status of those inside and outside of Blantyre
+
+```{r, echo=F}
+a %>% tabyl(HIV, Residence) %>% adorn_percentages(denominator="col") %>% adorn_pct_formatting(digits=1) %>% adorn_ns() %>% gt()
+```
+
+Age distribution of those inside and outside of Blantyre
+
+```{r, echo=F}
+a %>% tabyl(ageg10, Residence) %>% adorn_percentages(denominator="col") %>% adorn_pct_formatting(digits=1) %>% adorn_ns() %>% gt()
+```
+
+Sex distribution of those inside and outside of Blantyre
+
+```{r, echo=F}
+a %>% tabyl(sex, Residence) %>% adorn_percentages(denominator="col") %>% adorn_pct_formatting(digits=1) %>% adorn_ns() %>% gt()
+```
+
+Outcomes of those inside and outside of Blantyre
+
+```{r, echo=F}
+a %>% mutate(outcome=case_when(outcome==1 ~ "2. Died in hospital", outcome==0 ~ "1. Survived to discharge", is.na(outcome) ~ "3. Missing / unknown")) %>% tabyl(outcome, Residence) %>% adorn_percentages(denominator="col") %>% adorn_pct_formatting(digits=1) %>% adorn_ns() %>% gt()
+
+```

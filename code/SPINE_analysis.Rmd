@@ -96,14 +96,15 @@ x <- tableby(which ~ ageg10 + sex + includeNA(hiv) + includeNA(outcome) + art, d
 summary(x)
 ```
 
-## 2. Stacked barchart -- figure 1
+
+## 2. Stacked barchart -- supplementary figure 1
 
 ```{r, warning=FALSE}
 label_sum <- spine %>%
   group_by(ageg10, sex) %>%
   summarise(sum = sum(n()))
 
-color <- c(wes_palettes$Zissou1[1],wes_palettes$Zissou1[4],wes_palettes$Zissou1[5])
+#color <- c(wes_palettes$Zissou1[1],wes_palettes$Zissou1[4],wes_palettes$Zissou1[5])
 
 spine %>% 
   mutate(hiv=as.character(hiv)) %>%
@@ -114,7 +115,7 @@ spine %>%
   mutate(number=n()) %>%
   ggplot() +
   geom_bar(aes(fill=hiv,x=quarter), position="fill") +
-  geom_text(data=label_sum, aes(x=ymd("2014-10-01"), y=0.95, 
+  geom_text(data=label_sum, aes(x=ymd("2016-10-01"), y=0.95, 
                 label=paste0("n=",sum, sep=""))) +
   facet_grid(sex ~ageg10) + 
   scale_fill_manual(values=wes_palette("BottleRocket2")) +
@@ -130,7 +131,34 @@ spine %>%
   theme(panel.spacing = unit(1, "lines"),
         axis.text.x=element_text(angle = 90))
 
-ggsave(here("figures/fig_1.pdf"), width = 9, height = 6, dpi=300)
+ggsave(here("figures/Sfig_1.pdf"), width = 9, height = 6, dpi=300)
+
+fig_extra2 <- spine %>% 
+  mutate(hiv=as.character(hiv)) %>%
+  mutate(hiv=replace_na(hiv,"Unknown")) %>%
+  mutate(hiv=factor(hiv, levels=c("Unknown", "Negative","Positive"))) %>%
+  mutate(q = group_indices(.,quarter)) %>%
+  group_by(quarter) %>%
+  mutate(number=n()) %>%
+  ggplot() +
+  geom_bar(aes(fill=hiv,x=quarter), position="stack") +
+  geom_text(data=label_sum, aes(x=ymd("2016-10-01"), y=220, 
+                label=paste0("n=",sum, sep=""))) +
+  facet_grid(sex ~ageg10) + 
+  scale_fill_manual(values=wes_palette("BottleRocket2")) +
+    labs(
+      #title="HIV status of adults admitted to QECH",
+      #subtitle = "By quarter, and sex. n = total numer admissions between Q3.2012 to Q3.2019",
+       x="Year and quarter",
+       y="Number of admissions by HIV status",
+       fill="HIV status") +
+  scale_y_continuous() +
+  scale_x_date(breaks=breaks1, date_labels = "%b %Y") +
+  theme_bw() +
+  theme(panel.spacing = unit(1, "lines"),
+        axis.text.x=element_text(angle = 90))
+
+ggsave(here("figures for Blantyre grand round presentation/fig_extra2.pdf"), width = 9, height = 6, dpi=300)
 ```
 
 ## 3. Run imputation
@@ -209,7 +237,108 @@ both_imp_gp <- left_join(spine_imp_gp, cens_edit) %>%
   ungroup() %>%
   mutate(q = group_indices(.,quarter))
 
+spine_gp <- spine %>%
+  group_by(quarter, ageg10, sex, hiv) %>% #NB. not interested in 'outcome' for this bit, so not grouped by this
+  summarise(n_observed=n())
+
+both_gp <- left_join(spine_gp, cens_edit) %>%
+  mutate(n = case_when(is.na(n_observed) ~ 0L,
+                       TRUE ~ n_observed)) %>%  # 'n' is now from n_imputed
+  mutate(inc = (n/pop) * 100000) %>%
+  ungroup() %>%
+  mutate(q = group_indices(.,quarter))
+
+# Checking highest and lowest quarters of incidence admissions
+y <- both_gp %>% group_by(hiv,quarter) %>% summarise(n=sum(n_observed), pop=sum(pop)) %>% mutate(inc=(n / pop) *100000)
+y %>% filter(hiv=="Positive") %>% arrange(-inc)
+
+z <- both_imp_gp %>% group_by(hiv,quarter, .imp) %>% summarise(n=sum(n_imputed), pop=sum(pop)) %>% 
+  group_by(hiv,quarter) %>% summarise(n=mean(n), pop=mean(pop)) %>% mutate(inc=(n / pop) *100000)
+z %>% filter(hiv=="Positive") %>% arrange(-inc)
+
+```
+```{r, include=FALSE}
+# Drawing pie charts for a slide in talk explaining multiple imputation
+a <- spine %>% 
+  mutate(hiv=as.character(hiv)) %>%
+  mutate(hiv=replace_na(hiv,"Unknown")) %>%
+  mutate(hiv=factor(hiv, levels=c("Unknown", "Negative","Positive"))) %>%
+  group_by(hiv) %>%
+  summarise(number=n())
+
+pie(a$number, labels=a$hiv, col=wes_palette("BottleRocket2"), main="Original Observations")
+
+b <- spine_imp %>%   
+  group_by(hiv, .imp) %>%
+  summarise(number=n()) %>%
+  ungroup() %>%
+  nest(c(hiv, number))
+
+for(i in c(1:25)){
+  pie(b$data[[i]]$number, labels=b$data[[i]]$hiv, col=c("#CB2314", "#273046"))
+}
+
+```
+
+```{r}
+# So this is mean of all 25 imputations (to use for plotting points in graph)
+both_imp_gp2 <- both_imp_gp %>% group_by(quarter, ageg10, sex, hiv, q) %>%
+  summarise(n_imputed=mean(n_imputed), n=mean(n), pop=mean(pop)) %>% mutate(inc=(n_imputed/pop)*100000)
+
 # usethis::use_data(both_imp_gp, overwrite = TRUE) # saving data
+label_sum2 <- spine_imp %>%
+  group_by(ageg10, sex, hiv, .imp) %>%
+  summarise(sum = sum(n())) %>%
+  group_by(ageg10, sex, hiv) %>%
+  summarise(sum = mean(sum)) %>%
+  mutate(sum=round(sum)) %>%
+  filter(hiv=="Positive")
+
+fig_extra7 <- both_imp_gp2 %>% 
+  filter(hiv=="Positive") %>%
+  ggplot() +
+  geom_point(aes(y=inc,x=quarter), position="stack", size=0.3) +
+  geom_text(data=label_sum2, aes(x=ymd("2016-10-01"), y=250, 
+                label=paste0("n=",sum, sep=""))) +
+  facet_grid(sex ~ageg10) + 
+  scale_fill_manual(values=wes_palette("BottleRocket2")) +
+    labs(
+      #title="HIV status of adults admitted to QECH",
+      #subtitle = "By quarter, and sex. n = total numer admissions between Q3.2012 to Q3.2019",
+       x="Year and quarter",
+       y="Number of admissions by HIV status",
+       fill="HIV status") +
+  scale_y_continuous() +
+  scale_x_date(breaks=breaks1, date_labels = "%b %Y") +
+  theme_bw() +
+  theme(panel.spacing = unit(1, "lines"),
+        axis.text.x=element_text(angle = 90))
+
+ggsave(here("figures for Blantyre grand round presentation/fig_extra7.pdf"), width = 9, height = 6, dpi=300)
+
+fig_extra8 <- both_imp_gp %>% 
+  filter(hiv=="Positive") %>%
+  mutate(.imp=as.character(.imp)) %>%
+  ggplot() +
+  geom_point(aes(y=inc,x=quarter, color=.imp), size=0.3) +
+  facet_grid(sex ~ageg10) + 
+  scale_fill_manual(values=wes_palette("BottleRocket2")) +
+    labs(
+      #title="HIV status of adults admitted to QECH",
+      #subtitle = "By quarter, and sex. n = total numer admissions between Q3.2012 to Q3.2019",
+       x="Year and quarter",
+       y="Number of admissions by HIV status",
+       fill="HIV status") +
+  scale_y_continuous() +
+  scale_x_date(breaks=breaks1, date_labels = "%b %Y") +
+  theme_bw() +
+  theme(panel.spacing = unit(1, "lines"),
+        axis.text.x=element_text(angle = 90))
+
+fig_extra8
+ggsave(here("figures for Blantyre grand round presentation/fig_extra8.pdf"), width = 9, height = 6, dpi=300)
+
+
 
 ## Check imputed data (one of the imputations) by graphing original data and imputed 'observations'.
 spine_imp2 <- mice::complete(spine_mice, action="long", include = TRUE)
@@ -280,7 +409,7 @@ Creates 25 different models (one for each imputed data frame)
 
 ```{r inc_model, warning=FALSE}
 #nest by imputed grouped dataset
-by_imp <- both_imp_gp2 %>%
+by_imp <- both_imp_gp %>%
   ungroup() %>%
   nest_by(.imp)
 
@@ -288,7 +417,7 @@ by_imp <- both_imp_gp2 %>%
 model_imp_n3 <- by_imp %>% mutate(model = list(glm.nb(n ~ ns(q, knots = 3)*ageg10*sex, data = data %>% filter(hiv=="Positive"),offset(log(pop)))))
 
 # Same model for HIV negative admissions
-model_neg <- both_imp_gp2 %>% ungroup() %>% filter(hiv=="Negative") %>% nest_by(.imp) %>% mutate(model = list(glm.nb(n ~ ns(q, knots = 3)*ageg10*sex, data = data, offset(log(pop)))))
+model_neg <- both_imp_gp %>% ungroup() %>% filter(hiv=="Negative") %>% nest_by(.imp) %>% mutate(model = list(glm.nb(n ~ ns(q, knots = 3)*ageg10*sex, data = data, offset(log(pop)))))
 
 ```
 
@@ -302,7 +431,7 @@ Build models seperately for incidence of both HIV positive and HIV negative admi
 
 model2pred_imp <- function(df,m,var1,var2,var3,x){
   
-  scaffold_df <- both_imp_gp2 %>%
+  scaffold_df <- both_imp_gp %>%
     filter(hiv==x) %>% # HIV status
     ungroup() %>%
     dplyr::select(-.imp) %>%
@@ -331,14 +460,14 @@ model2pred_imp <- function(df,m,var1,var2,var3,x){
 }
 
 # Model predicted outputs
-out_n3 <- model2pred_imp(both_imp_gp2,model_imp_n3,q,ageg10,sex,"Positive")  # so this has 25 imputed dataframes, but inc, n_est and their CIs are exactly the same now across all imputed data frames
+out_n3 <- model2pred_imp(both_imp_gp,model_imp_n3,q,ageg10,sex,"Positive")  # so this has 25 imputed dataframes, but inc, n_est and their CIs are exactly the same now across all imputed data frames
 
-out_neg <- model2pred_imp(both_imp_gp2,model_neg,q,ageg10,sex,"Negative")
+out_neg <- model2pred_imp(both_imp_gp,model_neg,q,ageg10,sex,"Negative")
 ```
 
 ## 6. Plot the predictions
 
-Dots are from imputed dataset 12, model predictions are from melding across all dataframes.
+Dots are from mean of 25 imputed dataframes, model predictions are from melding across all dataframes.
 
 
 ```{r, warning=FALSE}
@@ -347,8 +476,8 @@ ggplot() +
   geom_ribbon(data=out_n3, aes(x=quarter, ymin = inc_low, ymax = inc_high, fill=hiv), alpha = 0.2) +
   geom_line(data=out_neg, aes(x = quarter, y = inc, color=hiv)) +
   geom_ribbon(data=out_neg, aes(x=quarter, ymin = inc_low, ymax = inc_high,fill=hiv), alpha = 0.2) +
-  geom_point(data=both_imp_gp2 %>% filter(.imp==99) %>% filter(hiv=="Positive"), aes(x=quarter, y=((n_imputed/pop)*100000), color=hiv),size=0.1) +
-  geom_point(data=both_imp_gp2 %>% filter(.imp==99) %>% filter(hiv=="Negative"), aes(x=quarter, y=((n_imputed/pop)*100000), color=hiv),size=0.1) +
+  geom_point(data=both_imp_gp2 %>% filter(hiv=="Positive"), aes(x=quarter, y=((n_imputed/pop)*100000), color=hiv),size=0.1) +
+  geom_point(data=both_imp_gp2 %>% filter(hiv=="Negative"), aes(x=quarter, y=((n_imputed/pop)*100000), color=hiv),size=0.1) +
   facet_grid(sex ~ ageg10) +
   scale_x_date(breaks=breaks1, date_labels = "%b%Y ") +
   scale_y_continuous(limits=c(0,500)) +
@@ -737,7 +866,7 @@ tab_3 %>% dplyr::select(ageg10,sex,imp, imp_p, unk_neg, unk_neg_p, unk_pos, unk_
              unk_pos_p="Relative decline")
 ```
 
-## 11. Secondary objective -- outcome (dead or alive) Table of outcomes
+## 11. Secondary objective -- outcome (dead or alive) Table of outcomes (table 3)
 
 Original (non-imputed data)
 ```{r}
@@ -927,7 +1056,7 @@ ggplot() +
   theme(panel.spacing = unit(1, "lines"),
         axis.text.x=element_text(angle = 90))
 
-ggsave(here("figures/fig_3.pdf"), width = 9, height = 6, dpi=300)
+ggsave(here("figures/fig_2.pdf"), width = 9, height = 6, dpi=300)
 
 ## What is trend line??
 int_df2 <- death_risk_pos %>%
